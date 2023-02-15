@@ -77,8 +77,10 @@ while True:
       match_keyword = False
       addQueue = False
       
-      if filter.pubkeys is not None and filter.pubkeys == event_msg.event.public_key:
-        match_pub = True
+      if filter.pubkeys:
+        for pubkey in filter.pubkeys.split(","):
+          if pubkey == event_msg.event.public_key:
+            match_pub = True
       if filter.kinds is not None:
         for kind in filter.kinds.split(","):
           if kind == event_msg.event.kind:
