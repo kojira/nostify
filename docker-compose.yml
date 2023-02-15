@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/data:/var/lib/mysql
+      - ./database/conf.d:/etc/mysql/conf.d
+      - ./database/conf.d/my.cnf:/etc/mysql/my.cnf
+    stop_grace_period: 1m
+  app:
+    container_name: nostify_bot
+    build:
+      context: "./"
+      dockerfile: "./bot/Dockerfile"
+    volumes:
+      - "./bot/:/var/bot/"
+      - "./common/:/var/bot/common"
+      - "./.env:/var/bot/common/.env"
+    tty: true
+    command: python bot.py
+    depends_on:
+      - db
+  subscriber:
+    container_name: subscriber
+    build:
+      context: "./"
+      dockerfile: "./subscriber/Dockerfile"
+    volumes:
+      - "./subscriber:/var/subscriber/"
+      - "./common/:/var/subscriber/common"
+      - "./.env:/var/subscriber/common/.env"
+    tty: true
+    command: python subscribe.py
+    depends_on:
+      - db
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    volumes:
+      - ./phpmyadmin/phpmyadmin-misc.ini:/usr/local/etc/php/conf.d/phpmyadmin-misc.ini
