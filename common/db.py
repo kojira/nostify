@@ -11,11 +11,6 @@ from common.models import Base, Event, EventStatus, Filter, FilterStatus, Notify
 from contextlib import contextmanager
 
 import os
-from dotenv import load_dotenv
-
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-print("dotenv_path",dotenv_path)
-load_dotenv(dotenv_path)
 
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")

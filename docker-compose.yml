@@ -20,10 +20,14 @@ services:
     build:
       context: "./"
       dockerfile: "./bot/Dockerfile"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - "./bot/:/var/bot/"
       - "./common/:/var/bot/common"
-      - "./.env:/var/bot/common/.env"
     tty: true
     command: python bot.py
     depends_on:
@@ -33,10 +37,14 @@ services:
     build:
       context: "./"
       dockerfile: "./subscriber/Dockerfile"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - "./subscriber:/var/subscriber/"
       - "./common/:/var/subscriber/common"
-      - "./.env:/var/subscriber/common/.env"
     tty: true
     command: python subscribe.py
     depends_on:
