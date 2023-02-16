@@ -32,7 +32,27 @@ docker compose up -d
 |/filter|npubで始まる文字列を指定するとNostr上に新たに該当の投稿を見つけるとコマンドを実行したチャンネルに投稿する。現状指定できるのは投稿者の公開鍵のみ。|
 |/help|ヘルプコマンドを表示|
 
-## NGワード指定
+## 設定
+
+### 設定ファイル
+
+`common/config.yml` が設定ファイルです。
+現状はリレーサーバーの設定のみです。
+デフォルトで以下のものを入れてあります。
+
+```yml
+relay_servers:
+  - "wss://relay-jp.nostr.wirednet.jp"
+  - "wss://relay.damus.io"
+  - "wss://relay.nostr.wirednet.jp"
+  - "wss://nostr.h3z.jp"
+  - "wss://relay.snort.social"
+  - "wss://nostr-pub.wellorder.net/"
+  - "wss://relay.current.fyi"
+  - "wss://nos.lol"
+```
+
+### NGワード指定
 
 http://127.0.0.1:8080 からPHPMyAdminが使えます。
 ng_wordsテーブルに指定したキーワードが含まれるNoteを無視するようになります。
