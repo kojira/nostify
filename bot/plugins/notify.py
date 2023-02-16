@@ -18,9 +18,10 @@ async def setup(bot):
 
 
 def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUrl=None):
+
   _embed: dict = {
-      "title": content,
-      "description": date_time_str,
+      "title": "Nostr",
+      "description": content[:4096],
       "fields": [
           {
               "name": "snort",
@@ -30,6 +31,11 @@ def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUr
           {
               "name": "iris",
               "value": f"[open with iris](https://iris.to/post/{note_id})",
+              "inline": True
+          },
+          {
+              "name": "datetime",
+              "value": date_time_str,
               "inline": True
           }
       ]
