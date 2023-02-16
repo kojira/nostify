@@ -36,7 +36,18 @@ class Event(Base):
 
 class FilterStatus(IntEnum):
   ENABLE = 0
-  DISABLE = 1
+  SUSPEND = 1
+  DELETED = -1
+
+  def __str__(self):
+    if self == FilterStatus.ENABLE:
+      return '有効'
+    elif self == FilterStatus.SUSPEND:
+      return 'サスペンド'
+    elif self == FilterStatus.DELETED:
+      return '削除済み'
+    else:
+      return 'unknown'
 
 
 class Filter(Base):

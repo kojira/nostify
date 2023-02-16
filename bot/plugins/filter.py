@@ -41,32 +41,62 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
 
 
 class Filter(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.db = bot.db
-        self.info = {
-            "name": "filter",
-            "version": "0.0.1",
-        }
+  def __init__(self, bot):
+    self.bot = bot
+    self.db = bot.db
+    self.info = {
+      "name": "filter",
+      "version": "0.0.2",
+    }
 
-    def get_name(self):
-        return self.info["name"]
+  def get_name(self):
+    return self.info["name"]
 
-    def get_version(self):
-        return self.info["version"]
+  def get_version(self):
+    return self.info["version"]
 
-    def get_plugin_info(self):
-        return self.info
+  def get_plugin_info(self):
+    return self.info
 
-    def get_help(self):
-        return {
-            "filter": ["チャンネルに通知するフィルタを設定します。"]
-        }
+  def get_help(self):
+    return {
+      "filter": ["""チャンネルに通知するフィルタを設定。
+引数:
+　`clear`:チャンネルに設定されているフィルタをクリア
+　`check`:設定されているフィルタを表示
+　`suspend`:チャンネルへの投稿を一時停止
+　`resume`:チャンネルへの投稿を再開(再開後に新規に受信したもの)
+"""
+      ],
+    }
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print(f"{__name__} on_ready")
+  @commands.Cog.listener()
+  async def on_ready(self):
+    print(f"{__name__} on_ready")
 
-    @app_commands.command(description="filter")
-    async def filter(self, interaction: discord.Integration):
-        await interaction.response.send_modal(InputFilter(self.bot))
+  def getFilterListForDisplay(self, channel_id):
+    filters = self.db.getFiltersWithChannelId(channel_id)
+    message = "このチャンネルのフィルタ設定\n"
+    for filter in filters:
+      pubkeys = "\n　　".join(filter.pubkeys.split(","))
+      message += f"状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n"
+    
+    return message
+
+  @app_commands.command(description="filter")
+  async def filter(self, interaction: discord.Integration, arg:str = None):
+    if arg:
+      if arg == "clear":
+        self.db.clearFilters(interaction.channel_id)
+        await interaction.response.send_message("チャンネルのフィルタをクリアしました。")
+      elif arg == "suspend":
+        self.db.suspendFilters(interaction.channel_id)
+        await interaction.response.send_message("チャンネルの投稿を一時停止しました。")
+      elif arg == "resume":
+        self.db.resumeFilters(interaction.channel_id)
+        await interaction.response.send_message("チャンネルの投稿を再開しました。")
+      elif arg == "check":
+        message = self.getFilterListForDisplay(interaction.channel_id)
+        await interaction.response.send_message(message)
+    else:
+      await interaction.response.send_modal(InputFilter(self.bot))

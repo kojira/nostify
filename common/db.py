@@ -11,6 +11,7 @@ from common.models import Base, Event, EventStatus, Filter, FilterStatus, Notify
 from contextlib import contextmanager
 
 import os
+from easydict import EasyDict as edict
 
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
@@ -40,22 +41,22 @@ Session = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on
 
 @contextmanager
 def session_scope():
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except:
-        import sys
-        import traceback
-        from datetime import datetime
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        err_text = datetime.now().strftime('%Y-%m-%d %H:%M:%S') + repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
-        sys.stderr.write(err_text)
-        print(err_text)
-        session.rollback()
-        raise
-    finally:
-        session.close()
+  session = Session()
+  try:
+    yield session
+    session.commit()
+  except:
+    import sys
+    import traceback
+    from datetime import datetime
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    err_text = datetime.now().strftime('%Y-%m-%d %H:%M:%S') + repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
+    sys.stderr.write(err_text)
+    print(err_text)
+    session.rollback()
+    raise
+  finally:
+    session.close()
 
 
 def addEvent(event : Event):
@@ -103,6 +104,45 @@ def getFilters():
     query = session.query(Filter).filter(Filter.status==FilterStatus.ENABLE.value)
     filters = query.all()
     return filters
+
+
+def getFiltersWithChannelId(channel_id):
+  with session_scope() as session:
+    query = session.query(Filter).filter(Filter.target_channel_id==channel_id)
+    result_list = []
+    filters = query.all()    
+    for filter in filters:
+      if filter.status == FilterStatus.DELETED:
+        continue
+      filter_status = edict()
+      filter_status.status = str(FilterStatus(filter.status))
+      filter_status.pubkeys = filter.pubkeys
+      result_list.append(filter_status)
+
+    return result_list
+
+
+def clearFilters(channel_id):
+  with session_scope() as session:
+    stmt = update(Filter).where(Filter.target_channel_id==channel_id).values(status=FilterStatus.DELETED.value)
+    session.execute(stmt)
+    session.commit()
+
+
+def suspendFilters(channel_id):
+  with session_scope() as session:
+    stmt = update(Filter).where((Filter.target_channel_id==channel_id)&(Filter.status==FilterStatus.ENABLE.value))\
+                          .values(status=FilterStatus.SUSPEND.value)
+    session.execute(stmt)
+    session.commit()
+
+
+def resumeFilters(channel_id):
+  with session_scope() as session:
+    stmt = update(Filter).where((Filter.target_channel_id==channel_id)&(Filter.status==FilterStatus.SUSPEND.value))\
+                          .values(status=FilterStatus.ENABLE.value)
+    session.execute(stmt)
+    session.commit()
 
 
 def addNotifyQueue(notifyQueue):
