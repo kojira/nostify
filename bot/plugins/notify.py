@@ -13,8 +13,9 @@ sys.path.append('./common')
 from common.models import QueueStatus
 import common.util as util
 
+
 async def setup(bot):
-    await bot.add_cog(Notify(bot))
+  await bot.add_cog(Notify(bot))
 
 
 def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUrl=None):
@@ -73,14 +74,14 @@ class Notify(commands.Cog):
 
   @commands.Cog.listener()
   async def on_ready(self):
-      print(f"{__name__} on_ready")
+    print(f"{__name__} on_ready")
 
   def cog_unload(self):
-      self.notify.cancel()
+    self.notify.cancel()
 
   @tasks.loop(seconds=30.0)
   async def notify(self):
-      await self.async_notify()
+    await self.async_notify()
 
   async def async_notify(self):
     loop = asyncio.get_running_loop()
@@ -107,20 +108,20 @@ class Notify(commands.Cog):
             else:
               icon_url = "https://www.gravatar.com/avatar/{event.pubkey}"
               _embed = create_embed(event.pubkey, date_time_str, util.get_note_id(event.hex_event_id), content, icon_url=icon_url, imageUrl=image_url)
-            
+
             await channel.send(
                 content="",
                 embed=discord.Embed.from_dict(_embed),
             )
             self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.DONE, notifyQueue.error_count)
           else:
-            self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.EVENT_NOT_FOUND, notifyQueue.error_count+1)
+            self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.EVENT_NOT_FOUND, notifyQueue.error_count + 1)
         else:
-          self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.NOT_FOUND, notifyQueue.error_count+1)
+          self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.NOT_FOUND, notifyQueue.error_count + 1)
           print("channel not found. channel_id: {}, queue_id: {}".format(channel_id, notifyQueue.id))
 
       except discord.errors.Forbidden as e:
-        self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.FORBIDDEN, notifyQueue.error_count+1)
+        self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.FORBIDDEN, notifyQueue.error_count + 1)
         print("channel permission error channel_id: {}, queue_id: {}".format(channel_id, notifyQueue.id))
         trace = traceback.format_exc()
         if e.code == 50013:
@@ -129,12 +130,11 @@ class Notify(commands.Cog):
         else:
           print(trace)
       except Exception:
-        self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.NOT_YET, notifyQueue.error_count+1)
+        self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.NOT_YET, notifyQueue.error_count + 1)
         print("channel error channel_id: {}, queue_id: {}".format(channel_id, notifyQueue.id))
         trace = traceback.format_exc()
         print(trace)
 
   @notify.before_loop
   async def befor_notify(self):
-      await self.bot.wait_until_ready()
-
+    await self.bot.wait_until_ready()

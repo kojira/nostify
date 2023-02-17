@@ -16,6 +16,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 BOT_APPLICATION_ID = os.environ.get("BOT_APPLICATION_ID")
 ADMIN_GUILD = os.environ.get("ADMIN_GUILD", None)
 
+
 class MyClient(commands.Bot):
   def __init__(self, *, intents: discord.Intents, application_id: int):
     super().__init__(command_prefix="!", help_command=None, intents=intents, application_id=application_id)
@@ -43,10 +44,10 @@ class MyClient(commands.Bot):
 
     old_items = set(self.extensions)
     new_items = set(map(
-      lambda x: f'{plugin_dir}.{x[:-3]}',
-      filter(
-          lambda x: x.endswith('.py'),
-          os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), plugin_dir)))
+        lambda x: f'{plugin_dir}.{x[:-3]}',
+        filter(
+            lambda x: x.endswith('.py'),
+            os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), plugin_dir)))
     ))
     if old_items == new_items:
       print("reload extensions")
@@ -99,49 +100,49 @@ def cog_versions(client) -> str:
 
 
 if __name__ == "__main__":
-    intents = discord.Intents.default()
-    client = MyClient(intents=intents, application_id=BOT_APPLICATION_ID)
+  intents = discord.Intents.default()
+  client = MyClient(intents=intents, application_id=BOT_APPLICATION_ID)
 
-    @client.tree.command(description="[Admin] reload plugin")
-    @app_commands.default_permissions()
-    @app_commands.guilds(discord.Object(ADMIN_GUILD))
-    async def reload(interaction: discord.Integration):
-      print("reload start")
-      commands = client.commands
-      tree = client.tree.get_commands()
+  @client.tree.command(description="[Admin] reload plugin")
+  @app_commands.default_permissions()
+  @app_commands.guilds(discord.Object(ADMIN_GUILD))
+  async def reload(interaction: discord.Integration):
+    print("reload start")
+    commands = client.commands
+    tree = client.tree.get_commands()
 
-      old_cogs_str = cog_versions(client)
-      old_commands_str = ", ".join(commands)
-      old_tree_str = ", ".join(map(lambda x: x.name, tree))
+    old_cogs_str = cog_versions(client)
+    old_commands_str = ", ".join(commands)
+    old_tree_str = ", ".join(map(lambda x: x.name, tree))
 
-      await client.load_cog_plugins()
+    await client.load_cog_plugins()
 
-      commands = client.commands
-      tree = client.tree.get_commands()
+    commands = client.commands
+    tree = client.tree.get_commands()
 
-      cogs_str = cog_versions(client)
-      commands_str = ", ".join(commands)
-      tree_str = ", ".join(map(lambda x: x.name, tree))
+    cogs_str = cog_versions(client)
+    commands_str = ", ".join(commands)
+    tree_str = ", ".join(map(lambda x: x.name, tree))
 
-      message = [
-          "reloaded.",
-          "before",
-          f"  cogs: {old_cogs_str}",
-          f"  commands: {old_commands_str}",
-          f"  tree: {old_tree_str}",
-          "now",
-          f"  cogs: {cogs_str}",
-          f"  commands: {commands_str}",
-          f"  tree: {tree_str}"
-      ]
-      await interaction.response.send_message("\n".join(message))
-      print("reload done.")
+    message = [
+        "reloaded.",
+        "before",
+        f"  cogs: {old_cogs_str}",
+        f"  commands: {old_commands_str}",
+        f"  tree: {old_tree_str}",
+        "now",
+        f"  cogs: {cogs_str}",
+        f"  commands: {commands_str}",
+        f"  tree: {tree_str}"
+    ]
+    await interaction.response.send_message("\n".join(message))
+    print("reload done.")
 
-    try:
-      client.run(BOT_TOKEN)
-    except KeyboardInterrupt:
-      print("exit")
-    except Exception:
-      exc_type, exc_value, exc_traceback = sys.exc_info()
-      trace = traceback.format_exc()
-      print(trace)
+  try:
+    client.run(BOT_TOKEN)
+  except KeyboardInterrupt:
+    print("exit")
+  except Exception:
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    trace = traceback.format_exc()
+    print(trace)

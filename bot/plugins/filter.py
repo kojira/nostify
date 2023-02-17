@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 from nostr.key import PublicKey
 
+
 async def setup(bot):
   await bot.add_cog(Filter(bot))
 
@@ -14,10 +15,10 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
     self.db = bot.db
 
   pubkeys = discord.ui.TextInput(
-    label="取得したいnoteのpubkeyを一行ずつ入力してください。※npubから始まる文字列",
-    placeholder="npub",
-    style=discord.TextStyle.long,
-    required=False,
+      label="取得したいnoteのpubkeyを一行ずつ入力してください。※npubから始まる文字列",
+      placeholder="npub",
+      style=discord.TextStyle.long,
+      required=False,
   )
 
   async def on_submit(self, interaction: discord.Interaction):
@@ -45,8 +46,8 @@ class Filter(commands.Cog):
     self.bot = bot
     self.db = bot.db
     self.info = {
-      "name": "filter",
-      "version": "0.0.2",
+        "name": "filter",
+        "version": "0.0.2",
     }
 
   def get_name(self):
@@ -60,7 +61,7 @@ class Filter(commands.Cog):
 
   def get_help(self):
     return {
-      "filter": ["""チャンネルに通知するフィルタを設定。
+        "filter": ["""チャンネルに通知するフィルタを設定。
 引数:
 　`引数なし`:ダイアログでフィルタする値を設定
 　`clear`:チャンネルに設定されているフィルタをクリア
@@ -68,7 +69,7 @@ class Filter(commands.Cog):
 　`suspend`:チャンネルへの投稿を一時停止
 　`resume`:チャンネルへの投稿を再開(再開後に新規に受信したもの)
 """
-      ],
+                   ],
     }
 
   @commands.Cog.listener()
@@ -81,11 +82,11 @@ class Filter(commands.Cog):
     for filter in filters:
       pubkeys = "\n　　".join(filter.pubkeys.split(","))
       message += f"状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n"
-    
+
     return message
 
   @app_commands.command(description="filter")
-  async def filter(self, interaction: discord.Integration, arg:str = None):
+  async def filter(self, interaction: discord.Integration, arg: str = None):
     if arg:
       if arg == "clear":
         self.db.clearFilters(interaction.channel_id)

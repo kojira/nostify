@@ -23,9 +23,12 @@ today = datetime.now()
 with open('./common/config.yml', 'r') as yml:
   config = yaml.safe_load(yml)
 
+since = today.timestamp()
+# since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
+
 filters = Filters([
-  Filter(kinds=[EventKind.TEXT_NOTE], since=today.timestamp()),
-  ])
+    Filter(kinds=[EventKind.TEXT_NOTE], since=since),
+])
 subscription_id = "nostify"
 request = [ClientMessageType.REQUEST, subscription_id]
 request.extend(filters.to_json_array())
@@ -57,12 +60,12 @@ while True:
       continue
 
     texts = [
-      datetime.fromtimestamp(event_msg.event.created_at).strftime("%Y/%m/%d %H:%M:%S"),
-      util.get_note_id(event_msg.event.id),
-      event_msg.event.public_key,
-      str(event_msg.event.kind),
-      event_msg.event.content,
-      event_msg.event.signature,
+        datetime.fromtimestamp(event_msg.event.created_at).strftime("%Y/%m/%d %H:%M:%S"),
+        util.get_note_id(event_msg.event.id),
+        event_msg.event.public_key,
+        str(event_msg.event.kind),
+        event_msg.event.content,
+        event_msg.event.signature,
     ]
     print("\n".join(texts))
     print(event_msg.event.tags)
@@ -76,7 +79,7 @@ while True:
       match_kind = False
       match_keyword = False
       addQueue = False
-      
+
       if filter.pubkeys:
         for pubkey in filter.pubkeys.split(","):
           if pubkey == event_msg.event.public_key:
@@ -100,10 +103,9 @@ while True:
             addQueue = True
         else:
           addQueue = True
-      
+
       if addQueue:
         notifyQueue = NotifyQueue(event_id, filter.target_channel_id)
         db.addNotifyQueue(notifyQueue)
-
 
   time.sleep(1)

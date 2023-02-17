@@ -15,6 +15,7 @@ from nostr import bech32
 with open('./common/config.yml', 'r') as yml:
   config = yaml.safe_load(yml)
 
+
 def get_note_id(_id):
   converted_bits = bech32.convertbits(bytes.fromhex(_id), 8, 5)
   return bech32.bech32_encode("note", converted_bits, bech32.Encoding.BECH32)
@@ -32,8 +33,8 @@ def get_images_urls(content):
 
 def get_meta_data(pubkey):
   filters = Filters([
-    Filter(authors=[pubkey], kinds=[EventKind.SET_METADATA], limit=1),
-    ])
+      Filter(authors=[pubkey], kinds=[EventKind.SET_METADATA], limit=1),
+  ])
   subscription_id = "nostify_get_meta"
   request = [ClientMessageType.REQUEST, subscription_id]
   request.extend(filters.to_json_array())
@@ -71,6 +72,3 @@ def get_meta_data(pubkey):
     return result[0]
   else:
     return None
-
-  
-
