@@ -1,5 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, BigInteger, Integer, Text, DateTime
+from sqlalchemy import Column, BigInteger, Integer, String, Text, DateTime
+from sqlalchemy.dialects.mysql import DATETIME
+from sqlalchemy.sql.functions import current_timestamp
 from datetime import datetime
 from enum import IntEnum
 
@@ -12,14 +14,14 @@ class EventStatus(IntEnum):
 class Event(Base):
   id = Column(Integer, autoincrement=True, primary_key=True)
   status = Column(Integer, index=True) # EventStatus
-  hex_event_id = Column(Text)
-  pubkey = Column(Text)
+  hex_event_id = Column(String(64), unique=True)
+  pubkey = Column(String(64), index=True)
   kind = Column(Integer, index=True)
   content = Column(Text)
   tags = Column(Text)
   signature = Column(Text)
-  event_created_at = Column(DateTime)
-  received_at = Column(DateTime, default=datetime.utcnow)
+  event_created_at = Column(DATETIME(fsp=3))
+  received_at = Column(DATETIME(fsp=3), server_default=current_timestamp(3))
 
   __tablename__ = 'events'
 
