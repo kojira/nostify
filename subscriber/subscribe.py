@@ -27,7 +27,8 @@ since = today.timestamp()
 # since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
 filters = Filters([
-    Filter(kinds=[EventKind.TEXT_NOTE], since=since),
+    # Filter(kinds=[EventKind.TEXT_NOTE], since=since),
+    Filter(kinds=[EventKind.TEXT_NOTE]),
 ])
 subscription_id = "nostify"
 request = [ClientMessageType.REQUEST, subscription_id]
@@ -37,13 +38,8 @@ relay_manager = RelayManager()
 for relay_server in config["relay_servers"]:
   relay_manager.add_relay(relay_server)
 
-relay_manager.add_subscription(subscription_id, filters)
-relay_manager.open_connections({"cert_reqs": ssl.CERT_NONE})
+relay_manager.add_subscription_on_all_relays(subscription_id, filters)
 time.sleep(1.25)
-
-message = json.dumps(request)
-relay_manager.publish_message(message)
-time.sleep(1)
 
 
 while True:

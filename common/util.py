@@ -43,13 +43,8 @@ def get_meta_data(pubkey):
   for relay_server in config["relay_servers"]:
     relay_manager.add_relay(relay_server)
 
-  relay_manager.add_subscription(subscription_id, filters)
-  relay_manager.open_connections({"cert_reqs": ssl.CERT_NONE})
+  relay_manager.add_subscription_on_all_relays(subscription_id, filters)
   time.sleep(1.25)
-
-  message = json.dumps(request)
-  relay_manager.publish_message(message)
-  time.sleep(1)
 
   event_content_list = []
   give_up_count = 0
@@ -65,7 +60,7 @@ def get_meta_data(pubkey):
     time.sleep(1)
     give_up_count += 1
 
-  relay_manager.close_connections()
+  relay_manager.close_all_relay_connections()
 
   if len(event_content_list) > 0:
     result = sorted(event_content_list, key=lambda x: x['timestamp'], reverse=True)
