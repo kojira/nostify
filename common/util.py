@@ -36,8 +36,6 @@ def get_meta_data(pubkey):
       Filter(authors=[pubkey], kinds=[EventKind.SET_METADATA], limit=1),
   ])
   subscription_id = "nostify_get_meta"
-  request = [ClientMessageType.REQUEST, subscription_id]
-  request.extend(filters.to_json_array())
 
   relay_manager = RelayManager()
   for relay_server in config["relay_servers"]:

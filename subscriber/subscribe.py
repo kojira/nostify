@@ -31,8 +31,6 @@ filters = Filters([
     # Filter(kinds=[EventKind.TEXT_NOTE]),
 ])
 subscription_id = "nostify"
-request = [ClientMessageType.REQUEST, subscription_id]
-request.extend(filters.to_json_array())
 
 relay_manager = RelayManager()
 for relay_server in config["relay_servers"]:
