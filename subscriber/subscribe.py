@@ -27,8 +27,8 @@ since = today.timestamp()
 # since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
 filters = Filters([
-    # Filter(kinds=[EventKind.TEXT_NOTE], since=since),
-    Filter(kinds=[EventKind.TEXT_NOTE]),
+    Filter(kinds=[EventKind.TEXT_NOTE], since=since),
+    # Filter(kinds=[EventKind.TEXT_NOTE]),
 ])
 subscription_id = "nostify"
 request = [ClientMessageType.REQUEST, subscription_id]
