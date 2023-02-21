@@ -219,9 +219,14 @@ def resumeFilters(channel_id):
 
 def addNotifyQueue(notifyQueue):
   with session_scope() as session:
-    session.add(notifyQueue)
-    session.commit()
-    return notifyQueue.id
+    # check queued
+    old_queue = session.query(NotifyQueue).filter(NotifyQueue.target_channel_id == notifyQueue.target_channel_id)\
+        .filter(NotifyQueue.event_id == notifyQueue.event_id)\
+        .one_or_none()
+    if old_queue is None:
+      session.add(notifyQueue)
+      session.commit()
+      return notifyQueue.id
 
 
 def getNotifyQueues():
