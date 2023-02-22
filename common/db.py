@@ -93,9 +93,13 @@ def addEvent(event: Event):
         )
         .prefix_with("IGNORE")
     )
-    session.execute(insert_stmt)
+    result = session.execute(insert_stmt)
     session.commit()
-    return event.id
+    if result.rowcount == 0:
+      # duplicated insert
+      return False
+    else:
+      return True
 
 
 def getEvent(_id):
@@ -137,6 +141,7 @@ def addFilter(
     ng_keywords=None,
 ):
   with session_scope() as session:
+    keywords = None if not keywords else keywords
     filter = Filter(
         server_id,
         channel_id,

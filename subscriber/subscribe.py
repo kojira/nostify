@@ -53,53 +53,56 @@ while True:
     if detect_ng:
       continue
 
-    texts = [
-        datetime.fromtimestamp(event_msg.event.created_at).strftime("%Y/%m/%d %H:%M:%S"),
-        util.get_note_id(event_msg.event.id),
-        event_msg.event.public_key,
-        str(event_msg.event.kind),
-        event_msg.event.content,
-        event_msg.event.signature,
-    ]
-    print("\n".join(texts))
-    print(event_msg.event.tags)
     tag_json = json.dumps(event_msg.event.tags)
     event_datetime = datetime.fromtimestamp(event_msg.event.created_at)
     event = Event(event_msg.event.id, event_msg.event.public_key, event_msg.event.kind, event_msg.event.content, tag_json, event_msg.event.signature, event_datetime)
-    event_id = db.addEvent(event)
-    filters = db.getFilters()
-    for filter in filters:
-      match_pub = False
-      match_kind = False
-      match_keyword = False
-      addQueue = False
+    inserted = db.addEvent(event)
+    if inserted:
+      texts = [
+          datetime.fromtimestamp(event_msg.event.created_at).strftime("%Y/%m/%d %H:%M:%S"),
+          util.get_note_id(event_msg.event.id),
+          event_msg.event.public_key,
+          str(event_msg.event.kind),
+          event_msg.event.content,
+          event_msg.event.signature,
+      ]
+      print("\n".join(texts))
+      print(event_msg.event.tags)
+      filters = db.getFilters()
+      for filter in filters:
+        match_pub = False
+        match_kind = False
+        match_keyword = False
+        addQueue = False
 
-      if filter.pubkeys:
-        for pubkey in filter.pubkeys.split(","):
-          if pubkey == event_msg.event.public_key:
-            match_pub = True
-      if filter.kinds is not None:
-        for kind in filter.kinds.split(","):
-          if kind == event_msg.event.kind:
-            match_kind = True
-      if filter.keywords is not None:
-        for keyword in filter.keywords.split("\n"):
-          if keyword in event_msg.event.content:
-            match_keyword = True
+        if filter.pubkeys:
+          for pubkey in filter.pubkeys.split(","):
+            if pubkey == event_msg.event.public_key:
+              match_pub = True
+        if filter.kinds is not None:
+          for kind in filter.kinds.split(","):
+            if kind == event_msg.event.kind:
+              match_kind = True
+        lower_content = event_msg.event.content.lower()
+        if filter.keywords is not None:
+          for keyword in filter.keywords.split("\n"):
+            keyword = keyword.lower()
+            if keyword in lower_content:
+              match_keyword = True
 
-      if match_pub:
-        if filter.kinds:
-          if filter.keywords:
+        if match_pub:
+          if filter.kinds:
+            if filter.keywords:
+              if match_keyword:
+                addQueue = True
+          elif filter.keywords:
             if match_keyword:
               addQueue = True
-        elif filter.keywords:
-          if match_keyword:
+          else:
             addQueue = True
-        else:
-          addQueue = True
 
-      if addQueue:
-        notifyQueue = NotifyQueue(event_id, filter.target_channel_id)
-        db.addNotifyQueue(notifyQueue)
+        if addQueue:
+          notifyQueue = NotifyQueue(event_id, filter.target_channel_id)
+          db.addNotifyQueue(notifyQueue)
 
   time.sleep(1)

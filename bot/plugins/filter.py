@@ -15,8 +15,15 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
     self.db = bot.db
 
   pubkeys = discord.ui.TextInput(
-      label="取得したいnoteのpubkeyを一行ずつ入力してください。※npubから始まる文字列",
+      label="取得したいnoteのpubkeyを一行ずつ入力してください。※npubから始まる文字列。",
       placeholder="npub",
+      style=discord.TextStyle.long,
+      required=False,
+  )
+
+  keywords = discord.ui.TextInput(
+      label="キーワードを一行ずつ入力してください。",
+      placeholder="#NostrStudy",
       style=discord.TextStyle.long,
       required=False,
   )
@@ -24,17 +31,21 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
   async def on_submit(self, interaction: discord.Interaction):
     pubkeys = self.pubkeys.value.split('\n')
     hex_pubkey_list = []
-    for pubkey in pubkeys:
-      if not pubkey.startswith("npub"):
-        await interaction.response.send_message("npubから始まる文字列を指定してください")
-        return
-      else:
-        hex_key = PublicKey.from_npub(pubkey).hex()
-        hex_pubkey_list.append(hex_key)
+    if len(pubkeys) > 1:
+      for pubkey in pubkeys:
+        if not pubkey.startswith("npub"):
+          await interaction.response.send_message("pubkeyにはnpubから始まる文字列を指定してください")
+          return
+        else:
+          hex_key = PublicKey.from_npub(pubkey).hex()
+          hex_pubkey_list.append(hex_key)
     hex_pubkeys = ','.join(hex_pubkey_list)
-    self.db.addFilter(interaction.guild_id, interaction.channel_id, hex_pubkeys)
 
-    await interaction.response.send_message("フィルタを設定しました。")
+    if not hex_pubkeys or len(self.keywords.value) > 0:
+      self.db.addFilter(interaction.guild_id, interaction.channel_id, pubkeys=hex_pubkeys, keywords=self.keywords.value)
+      await interaction.response.send_message("フィルタを設定しました。")
+    else:
+      await interaction.response.send_message("pubkeyかキーワードのどちらかは入れてください")
 
   async def on_error(self, interaction: discord.Interaction, error: Exception):
     print(error)
@@ -82,6 +93,8 @@ class Filter(commands.Cog):
     for filter in filters:
       pubkeys = "\n　　".join(filter.pubkeys.split(","))
       message += f"状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n"
+
+    message = message if len(filters) > 0 else "このチャンネルにフィルタ設定はありません。"
 
     return message
 
