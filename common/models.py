@@ -7,13 +7,15 @@ from enum import IntEnum
 
 Base = declarative_base()
 
+
 class EventStatus(IntEnum):
   ENABLE = 0
   DELETED = 1
 
+
 class Event(Base):
   id = Column(Integer, autoincrement=True, primary_key=True)
-  status = Column(Integer, index=True) # EventStatus
+  status = Column(Integer, index=True)  # EventStatus
   hex_event_id = Column(String(64), unique=True)
   pubkey = Column(String(64), index=True)
   kind = Column(Integer, index=True)
@@ -54,7 +56,7 @@ class FilterStatus(IntEnum):
 
 class Filter(Base):
   id = Column(Integer, autoincrement=True, primary_key=True)
-  status = Column(Integer, index=True) # FilterStatus
+  status = Column(Integer, index=True)  # FilterStatus
   target_server_id = Column(BigInteger)
   target_channel_id = Column(BigInteger)
   pubkeys = Column(Text, nullable=True)
@@ -95,16 +97,16 @@ class QueueStatus(IntEnum):
 
 class NotifyQueue(Base):
   id = Column(Integer, autoincrement=True, primary_key=True)
-  event_id = Column(Integer)
-  status = Column(Integer) # QueueStatus
+  hex_event_id = Column(String(64))
+  status = Column(Integer)  # QueueStatus
   target_channel_id = Column(BigInteger)
   error_count = Column(Integer)
   created_at = Column(DateTime, default=datetime.utcnow)
 
   __tablename__ = 'notify_queue'
 
-  def __init__(self, event_id, target_channel_id):
-    self.event_id = event_id
+  def __init__(self, hex_event_id, target_channel_id):
+    self.hex_event_id = hex_event_id
     self.status = QueueStatus.NOT_YET.value
     self.target_channel_id = target_channel_id
     self.error_count = 0

@@ -1,7 +1,7 @@
 import socket
 import time
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import update
+from sqlalchemy import update, desc
 from sqlalchemy.dialects.mysql import insert
 
 from sqlalchemy import create_engine
@@ -102,10 +102,10 @@ def addEvent(event: Event):
       return True
 
 
-def getEvent(_id):
+def getEvent(hex_event_id):
   with session_scope() as session:
-    query = session.query(Event).filter(Event.id == _id)
-    event = query.one_or_none()
+    query = session.query(Event).filter(Event.hex_event_id == hex_event_id)
+    event = query.order_by(desc(Event.received_at)).first()
     return event
 
 
@@ -226,7 +226,7 @@ def addNotifyQueue(notifyQueue):
   with session_scope() as session:
     # check queued
     old_queue = session.query(NotifyQueue).filter(NotifyQueue.target_channel_id == notifyQueue.target_channel_id)\
-        .filter(NotifyQueue.event_id == notifyQueue.event_id)\
+        .filter(NotifyQueue.hex_event_id == notifyQueue.hex_event_id)\
         .one_or_none()
     if old_queue is None:
       session.add(notifyQueue)

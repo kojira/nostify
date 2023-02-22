@@ -96,7 +96,7 @@ class Notify(commands.Cog):
       try:
         channel = self.bot.get_channel(channel_id)
         if channel:
-          event = self.db.getEvent(notifyQueue.event_id)
+          event = self.db.getEvent(notifyQueue.hex_event_id)
           if event:
             image_urls, content = util.get_images_urls(event.content)
             image_url = None if image_urls is None or len(image_urls) < 1 else image_urls[0]

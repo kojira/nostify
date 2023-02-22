@@ -90,19 +90,23 @@ while True:
             if keyword in lower_content:
               match_keyword = True
 
-        if match_pub:
-          if filter.kinds:
-            if filter.keywords:
+        if len(filter.pubkeys) > 0:
+          if match_pub:
+            if filter.kinds:
+              if filter.keywords:
+                if match_keyword:
+                  addQueue = True
+            elif filter.keywords:
               if match_keyword:
                 addQueue = True
-          elif filter.keywords:
-            if match_keyword:
+            else:
               addQueue = True
-          else:
+        else:
+          if match_keyword:
             addQueue = True
 
         if addQueue:
-          notifyQueue = NotifyQueue(event_id, filter.target_channel_id)
+          notifyQueue = NotifyQueue(event_msg.event.id, filter.target_channel_id)
           db.addNotifyQueue(notifyQueue)
 
   time.sleep(1)
