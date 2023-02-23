@@ -103,15 +103,16 @@ class Notify(commands.Cog):
             user_meta = util.get_meta_data(event.pubkey)
             jst = pytz.timezone('Asia/Tokyo')
             date_time_str = event.event_created_at.astimezone(jst).strftime("%Y-%m-%d %H:%M:%S %z")
+            unknown_icon_url = f"https://www.gravatar.com/avatar/{event.pubkey}"
             if user_meta:
               username = user_meta['display_name'] if 'display_name' in user_meta else None
               if username is None:
                 username = user_meta['name'] if 'name' in user_meta else "名無しさん"
-              icon_url = user_meta['picture'] if 'picture' in user_meta else f"https://www.gravatar.com/avatar/{event.pubkey}"
+              icon_url = user_meta['picture'] if 'picture' in user_meta else unknown_icon_url
+              icon_url = icon_url if icon_url.startswith('http') else unknown_icon_url
               _embed = create_embed(username, date_time_str, util.get_note_id(event.hex_event_id), content, icon_url=icon_url, imageUrl=image_url)
             else:
-              icon_url = f"https://www.gravatar.com/avatar/{event.pubkey}"
-              _embed = create_embed(event.pubkey, date_time_str, util.get_note_id(event.hex_event_id), content, icon_url=icon_url, imageUrl=image_url)
+              _embed = create_embed(event.pubkey, date_time_str, util.get_note_id(event.hex_event_id), content, icon_url=unknown_icon_url, imageUrl=image_url)
 
             await channel.send(
                 content="",
