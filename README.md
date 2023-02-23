@@ -2,6 +2,10 @@
 
 [Nostr](https://github.com/nostr-protocol/nips)のリレーサーバーに接続して、discordに投稿するdiscord botのソースコードです。
 
+## bot導入url
+
+https://discord.com/oauth2/authorize?client_id=1075832263146737685&permissions=0&scope=bot
+
 ## 起動方法
 
 リポジトリをクローンします。
@@ -47,7 +51,7 @@ relay_servers:
   - "wss://relay.nostr.wirednet.jp"
   - "wss://nostr.h3z.jp"
   - "wss://relay.snort.social"
-  - "wss://nostr-pub.wellorder.net/"
+  - "wss://nostr-pub.wellorder.net"
   - "wss://relay.current.fyi"
   - "wss://nos.lol"
 ```
