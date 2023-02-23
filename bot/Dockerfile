@@ -20,6 +20,6 @@ RUN pip install --upgrade pip
 COPY ./bot/requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN git clone https://github.com/jeffthibault/python-nostr.git\
+RUN git clone -b relay-threads https://github.com/jeffthibault/python-nostr.git\
     && cd python-nostr\
     && python setup.py install
