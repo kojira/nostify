@@ -79,7 +79,7 @@ class Notify(commands.Cog):
   def cog_unload(self):
     self.notify.cancel()
 
-  @tasks.loop(seconds=30.0)
+  @tasks.loop(seconds=10.0)
   async def notify(self):
     await self.async_notify()
 
