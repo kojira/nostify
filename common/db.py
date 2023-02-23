@@ -176,8 +176,10 @@ def getFiltersWithChannelId(channel_id):
       if filter.status == FilterStatus.DELETED:
         continue
       filter_status = edict()
+      filter_status.id = filter.id
       filter_status.status = str(FilterStatus(filter.status))
       filter_status.pubkeys = filter.pubkeys
+      filter_status.keywords = filter.keywords
       result_list.append(filter_status)
 
     return result_list

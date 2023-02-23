@@ -92,7 +92,8 @@ class Filter(commands.Cog):
     message = "このチャンネルのフィルタ設定\n"
     for filter in filters:
       pubkeys = "\n　　".join(filter.pubkeys.split(","))
-      message += f"状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n"
+      keywords = "\n　　".join(filter.keywords.split("\n"))
+      message += f"filter id:{filter.id}\n　状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n　keywords:\n　　{keywords}\n\n"
 
     message = message if len(filters) > 0 else "このチャンネルにフィルタ設定はありません。"
 
