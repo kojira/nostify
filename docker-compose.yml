@@ -32,6 +32,7 @@ services:
     command: python bot.py
     depends_on:
       - db
+    restart: always
   subscriber:
     container_name: subscriber
     build:
@@ -49,6 +50,7 @@ services:
     command: python subscribe.py
     depends_on:
       - db
+    restart: always
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
