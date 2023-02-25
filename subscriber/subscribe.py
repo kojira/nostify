@@ -1,7 +1,7 @@
 import json
 import ssl
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from nostr.filter import Filter, Filters
 from nostr.event import Event, EventKind
@@ -18,30 +18,59 @@ import yaml
 
 import util
 
-today = datetime.now()
 
 with open('./common/config.yml', 'r') as yml:
   config = yaml.safe_load(yml)
 
-since = today.timestamp()
-# since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
-
-filters = Filters([
-    Filter(kinds=[EventKind.TEXT_NOTE], since=since),
-    # Filter(kinds=[EventKind.TEXT_NOTE]),
-])
 subscription_id = "nostify"
 
-relay_manager = RelayManager()
-for relay_server in config["relay_servers"]:
-  relay_manager.add_relay(relay_server)
 
-relay_manager.add_subscription_on_all_relays(subscription_id, filters)
-time.sleep(1.25)
+def connect_relay():
+  today = datetime.now()
+  before_min = today - timedelta(minutes=20)
+  since = before_min.timestamp()
+  # since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
+  filters = Filters([
+      Filter(kinds=[EventKind.TEXT_NOTE], since=since),
+      # Filter(kinds=[EventKind.TEXT_NOTE]),
+  ])
+  relay_manager = RelayManager()
+  add_all_relay(relay_manager, config["relay_servers"])
+
+  relay_manager.add_subscription_on_all_relays(subscription_id, filters)
+  time.sleep(1.25)
+
+  return relay_manager
+
+
+def add_all_relay(relay_manager, relay_servers):
+  for relay_server in relay_servers:
+    relay_manager.add_relay(relay_server)
+
+
+def close_relay(relay_manager):
+  relay_manager.close_all_relay_connections()
+
+
+def reconnect_all_relay(relay_manager):
+  print("reconnect_all_relay start")
+  close_relay(relay_manager)
+  time.sleep(2)
+  relay_manager = connect_relay()
+  time.sleep(2)
+  print("reconnect_all_relay done")
+  return relay_manager
+
+
+relay_manager = connect_relay()
+
+no_event_count = 0
 
 while True:
+  events = 0
   while relay_manager.message_pool.has_events():
+    events += 1
     now = datetime.now()
     event_msg = relay_manager.message_pool.get_event()
     words = db.getNgWords()
@@ -109,4 +138,14 @@ while True:
           notifyQueue = NotifyQueue(event_msg.event.id, filter.target_channel_id)
           db.addNotifyQueue(notifyQueue)
 
+  if events == 0:
+    no_event_count += 1
+    if no_event_count % 100 == 0:
+      print("no events", no_event_count)
+  else:
+    no_event_count = 0
+
+  if no_event_count >= 900:
+    relay_manager = reconnect_all_relay(relay_manager)
+    no_event_count = 0
   time.sleep(1)
