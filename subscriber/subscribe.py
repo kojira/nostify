@@ -145,7 +145,7 @@ while True:
   else:
     no_event_count = 0
 
-  if no_event_count >= 900:
+  if no_event_count >= 300:
     relay_manager = reconnect_all_relay(relay_manager)
     no_event_count = 0
   time.sleep(1)
