@@ -114,8 +114,12 @@ class Notify(commands.Cog):
             else:
               _embed = create_embed(event.pubkey, date_time_str, util.get_note_id(event.hex_event_id), content, icon_url=unknown_icon_url, imageUrl=image_url)
 
+            # メンションがあればembedではなくcontentに入れる
+            mention_list = util.get_mention(event.content)
+            content = " ".join(mention_list)
+
             await channel.send(
-                content="",
+                content=content,
                 embed=discord.Embed.from_dict(_embed),
             )
             self.db.updateNotifyQueue(notifyQueue.id, QueueStatus.DONE, notifyQueue.error_count)

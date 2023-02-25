@@ -31,6 +31,11 @@ def get_images_urls(content):
   return image_urls, replaced_content
 
 
+def get_mention(content):
+  pattern = re.compile(r"<@\d{18}>")
+  return pattern.findall(content)
+
+
 def get_meta_data(pubkey):
   filters = Filters([
       Filter(authors=[pubkey], kinds=[EventKind.SET_METADATA], limit=1),
