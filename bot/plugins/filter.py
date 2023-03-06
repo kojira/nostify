@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from nostr.key import PublicKey
+import re
 
 
 async def setup(bot):
@@ -15,8 +16,15 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
     self.db = bot.db
 
   pubkeys = discord.ui.TextInput(
-      label="取得したいnoteのpubkeyを一行ずつ入力してください。※npubから始まる文字列。",
+      label="取得したいユーザーのpubkeyを一行ずつ入力してください。※npubから始まる文字列。",
       placeholder="npub",
+      style=discord.TextStyle.long,
+      required=False,
+  )
+
+  hex_pubkeys = discord.ui.TextInput(
+      label="取得したいユーザーのpubkey(hex)を一行ずつ入力してください。",
+      placeholder="",
       style=discord.TextStyle.long,
       required=False,
   )
@@ -39,10 +47,18 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
         else:
           hex_key = PublicKey.from_npub(pubkey).hex()
           hex_pubkey_list.append(hex_key)
-    hex_pubkeys = ','.join(hex_pubkey_list)
+    hex_pubkeys = self.hex_pubkeys.value.split('\n')
+    if len(hex_pubkeys) >= 1 and len(hex_pubkeys[0]):
+      for hex_pubkey in hex_pubkeys:
+        if len(hex_pubkey) == 64:
+          hex_pubkey_list.append(hex_pubkey)
+        else:
+          await interaction.response.send_message("pubkey(hex)には64文字の文字列を指定してください")
+          return
+    hex_pubkeys_connma = ','.join(hex_pubkey_list)
 
     if hex_pubkeys or len(self.keywords.value) > 0:
-      self.db.addFilter(interaction.guild_id, interaction.channel_id, pubkeys=hex_pubkeys, keywords=self.keywords.value)
+      self.db.addFilter(interaction.guild_id, interaction.channel_id, pubkeys=hex_pubkeys_connma, keywords=self.keywords.value)
       await interaction.response.send_message("フィルタを設定しました。")
     else:
       await interaction.response.send_message("pubkeyかキーワードのどちらかは入れてください")
