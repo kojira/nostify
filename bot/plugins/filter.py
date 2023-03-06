@@ -31,7 +31,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
   async def on_submit(self, interaction: discord.Interaction):
     pubkeys = self.pubkeys.value.split('\n')
     hex_pubkey_list = []
-    if len(pubkeys) >= 1:
+    if len(pubkeys) >= 1 and len(pubkeys[0]):
       for pubkey in pubkeys:
         if not pubkey.startswith("npub"):
           await interaction.response.send_message("pubkeyにはnpubから始まる文字列を指定してください")
