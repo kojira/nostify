@@ -21,7 +21,7 @@ async def setup(bot):
 def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUrl=None):
 
   _embed: dict = {
-      "title": date_time_str,
+      "title": author,
       "description": content[:4096],
       "fields": [
           {
@@ -42,8 +42,7 @@ def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUr
     }
   if author:
     _embed["author"] = {
-        "name": author,
-        "icon_url": icon_url
+        "name": date_time_str
     }
     _embed["thumbnail"] = {
         "url": icon_url
