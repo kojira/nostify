@@ -31,7 +31,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
   async def on_submit(self, interaction: discord.Interaction):
     pubkeys = self.pubkeys.value.split('\n')
     hex_pubkey_list = []
-    if len(pubkeys) > 1:
+    if len(pubkeys) >= 1:
       for pubkey in pubkeys:
         if not pubkey.startswith("npub"):
           await interaction.response.send_message("pubkeyにはnpubから始まる文字列を指定してください")
@@ -91,8 +91,8 @@ class Filter(commands.Cog):
     filters = self.db.getFiltersWithChannelId(channel_id)
     message = "このチャンネルのフィルタ設定\n"
     for filter in filters:
-      pubkeys = "\n　　".join(filter.pubkeys.split(","))
-      keywords = "\n　　".join(filter.keywords.split("\n"))
+      pubkeys = "" if filter.pubkeys else "\n　　".join(filter.pubkeys.split(","))
+      keywords = "" if filter.keywords is None else "\n　　".join(filter.keywords.split("\n"))
       message += f"filter id:{filter.id}\n　状態:{filter.status}\n　pubkeys:\n　　{pubkeys}\n　keywords:\n　　{keywords}\n\n"
 
     message = message if len(filters) > 0 else "このチャンネルにフィルタ設定はありません。"
