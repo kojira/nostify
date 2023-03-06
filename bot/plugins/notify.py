@@ -45,6 +45,9 @@ def create_embed(author, date_time_str, note_id, content, icon_url=None, imageUr
         "name": author,
         "icon_url": icon_url
     }
+    _embed["thumbnail"] = {
+        "url": icon_url
+    }
   return _embed
 
 
