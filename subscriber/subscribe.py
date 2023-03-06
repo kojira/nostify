@@ -108,16 +108,19 @@ while True:
           for pubkey in filter.pubkeys.split(","):
             if pubkey == event_msg.event.public_key:
               match_pub = True
+              break
         if filter.kinds is not None:
           for kind in filter.kinds.split(","):
             if kind == event_msg.event.kind:
               match_kind = True
+              break
         lower_content = event_msg.event.content.lower()
         if filter.keywords is not None:
           for keyword in filter.keywords.split("\n"):
             keyword = keyword.lower()
             if keyword in lower_content:
               match_keyword = True
+              break
 
         if len(filter.pubkeys) > 0:
           if match_pub:
