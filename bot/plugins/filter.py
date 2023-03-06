@@ -41,7 +41,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
           hex_pubkey_list.append(hex_key)
     hex_pubkeys = ','.join(hex_pubkey_list)
 
-    if not hex_pubkeys or len(self.keywords.value) > 0:
+    if hex_pubkeys or len(self.keywords.value) > 0:
       self.db.addFilter(interaction.guild_id, interaction.channel_id, pubkeys=hex_pubkeys, keywords=self.keywords.value)
       await interaction.response.send_message("フィルタを設定しました。")
     else:
