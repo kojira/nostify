@@ -42,8 +42,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
     if len(pubkeys) >= 1 and len(pubkeys[0]):
       for pubkey in pubkeys:
         if not pubkey.startswith("npub"):
-          await interaction.response.send_message("pubkeyにはnpubから始まる文字列を指定してください")
-          return
+          continue
         else:
           hex_key = PublicKey.from_npub(pubkey).hex()
           hex_pubkey_list.append(hex_key)
@@ -53,8 +52,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
         if len(hex_pubkey) == 64:
           hex_pubkey_list.append(hex_pubkey)
         else:
-          await interaction.response.send_message("pubkey(hex)には64文字の文字列を指定してください")
-          return
+          continue
     hex_pubkeys_connma = ','.join(hex_pubkey_list)
 
     if hex_pubkeys or len(self.keywords.value) > 0:
