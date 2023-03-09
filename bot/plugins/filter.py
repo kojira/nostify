@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from nostr.key import PublicKey
-import re
+from pynostr.key import PublicKey
 
 
 async def setup(bot):
@@ -52,6 +51,7 @@ class InputFilter(discord.ui.Modal, title="フィルター"):
         if len(hex_pubkey) == 64:
           hex_pubkey_list.append(hex_pubkey)
         else:
+          print("skip... ", hex_pubkey)
           continue
     hex_pubkeys_connma = ','.join(hex_pubkey_list)
 

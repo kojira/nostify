@@ -25,6 +25,8 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    links:
+      - subscriber
     volumes:
       - "./bot/:/var/bot/"
       - "./common/:/var/bot/common"
@@ -47,7 +49,9 @@ services:
       - "./subscriber:/var/subscriber/"
       - "./common/:/var/subscriber/common"
     tty: true
-    command: python subscribe.py
+    command: bash -c "python subscribe.py & python api.py"
+    ports:
+      - "5001:5000"
     depends_on:
       - db
     restart: always

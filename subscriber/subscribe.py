@@ -1,13 +1,11 @@
 import json
-import ssl
 import time
 from datetime import datetime, timedelta
 
-from nostr.filter import Filter, Filters
-from nostr.event import Event, EventKind
-from nostr.relay_manager import RelayManager
-from nostr.message_type import ClientMessageType
-
+from pynostr.filters import FiltersList, Filters
+from pynostr.event import Event, EventKind
+from pynostr.relay_manager import RelayManager
+import uuid
 
 import sys
 sys.path.append('./common')
@@ -22,7 +20,7 @@ import util
 with open('./common/config.yml', 'r') as yml:
   config = yaml.safe_load(yml)
 
-subscription_id = "nostify"
+subscription_id = uuid.uuid1().hex
 
 
 def connect_relay():
@@ -31,15 +29,18 @@ def connect_relay():
   since = before_min.timestamp()
   # since = datetime.strptime("2023-02-16 0:0:0", '%Y-%m-%d %H:%M:%S').timestamp()
 
-  filters = Filters([
-      Filter(kinds=[EventKind.TEXT_NOTE], since=since),
-      # Filter(kinds=[EventKind.TEXT_NOTE]),
+  filters = FiltersList([
+      Filters(kinds=[EventKind.TEXT_NOTE], since=since),
+      # Filters(kinds=[EventKind.TEXT_NOTE]),
   ])
   relay_manager = RelayManager()
   add_all_relay(relay_manager, config["relay_servers"])
 
   relay_manager.add_subscription_on_all_relays(subscription_id, filters)
-  time.sleep(1.25)
+  relay_manager.run_sync()
+  while relay_manager.message_pool.has_notices():
+    notice_msg = relay_manager.message_pool.get_notice()
+    print(notice_msg.content)
 
   return relay_manager
 
@@ -84,16 +85,17 @@ while True:
 
     tag_json = json.dumps(event_msg.event.tags)
     event_datetime = datetime.fromtimestamp(event_msg.event.created_at)
-    event = Event(event_msg.event.id, event_msg.event.public_key, event_msg.event.kind, event_msg.event.content, tag_json, event_msg.event.signature, event_datetime)
+    event = Event(event_msg.event.id, event_msg.event.pubkey, event_msg.event.kind, event_msg.event.content, tag_json, event_msg.event.sig, event_datetime)
     inserted = db.addEvent(event)
+    print(".", end="")
     if inserted:
       texts = [
           datetime.fromtimestamp(event_msg.event.created_at).strftime("%Y/%m/%d %H:%M:%S"),
           util.get_note_id(event_msg.event.id),
-          event_msg.event.public_key,
+          event_msg.event.pubkey,
           str(event_msg.event.kind),
           event_msg.event.content,
-          event_msg.event.signature,
+          event_msg.event.sig,
       ]
       print("\n".join(texts))
       print(event_msg.event.tags)
@@ -106,7 +108,7 @@ while True:
 
         if filter.pubkeys:
           for pubkey in filter.pubkeys.split(","):
-            if pubkey == event_msg.event.public_key:
+            if pubkey == event_msg.event.pubkey:
               match_pub = True
               break
         if filter.kinds is not None:
@@ -151,4 +153,5 @@ while True:
   if no_event_count >= 300:
     relay_manager = reconnect_all_relay(relay_manager)
     no_event_count = 0
-  time.sleep(1)
+
+  relay_manager.run_sync()

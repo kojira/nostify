@@ -1,12 +1,10 @@
-import os
 import sys
-import time
-import datetime
 import asyncio
 import traceback
 import discord
 from discord.ext import commands, tasks
 import pytz
+import threading
 
 sys.path.append('./common')
 
@@ -97,11 +95,12 @@ class Notify(commands.Cog):
           if event:
             image_urls, content = util.get_images_urls(event.content)
             image_url = None if image_urls is None or len(image_urls) < 1 else image_urls[0]
-            user_meta = util.get_meta_data(event.pubkey)
+
             jst = pytz.timezone('Asia/Tokyo')
             date_time_str = event.event_created_at.astimezone(jst).strftime("%Y-%m-%d %H:%M:%S %z")
             unknown_icon_url = f"https://www.gravatar.com/avatar/{event.pubkey}"
-            if user_meta:
+            user_meta = util.get_meta_data(event.pubkey)
+            if user_meta['result']:
               username = user_meta['display_name'] if 'display_name' in user_meta else None
               if username is None:
                 username = user_meta['name'] if 'name' in user_meta else "名無しさん"
