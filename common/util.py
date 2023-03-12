@@ -33,9 +33,3 @@ def get_images_urls(content):
 def get_mention(content):
   pattern = re.compile(r"<@\d{18}>")
   return pattern.findall(content)
-
-
-def get_meta_data(pubkey):
-  url = f'http://subscriber:5000/meta?pubkey={pubkey}'
-  response = requests.get(url)
-  return response.json()

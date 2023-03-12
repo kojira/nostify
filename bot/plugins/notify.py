@@ -99,8 +99,8 @@ class Notify(commands.Cog):
             jst = pytz.timezone('Asia/Tokyo')
             date_time_str = event.event_created_at.astimezone(jst).strftime("%Y-%m-%d %H:%M:%S %z")
             unknown_icon_url = f"https://www.gravatar.com/avatar/{event.pubkey}"
-            user_meta = util.get_meta_data(event.pubkey)
-            if user_meta['result']:
+            user_meta = self.db.getProf(event.pubkey)
+            if user_meta:
               username = user_meta['display_name'] if 'display_name' in user_meta else None
               if username is None:
                 username = user_meta['name'] if 'name' in user_meta else "名無しさん"

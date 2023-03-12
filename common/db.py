@@ -5,6 +5,7 @@ from sqlalchemy import update, desc
 from sqlalchemy.dialects.mysql import insert
 
 from sqlalchemy import create_engine
+import json
 
 from common.models import (
     Base,
@@ -114,6 +115,20 @@ def getEvents():
     query = session.query(Event).filter(Event.status == EventStatus.ENABLE.value)
     events = query.all()
     return events
+
+
+def getProf(pubkey):
+  with session_scope() as session:
+    content = None
+    query = session.query(Event).filter(Event.status == EventStatus.ENABLE.value)\
+        .filter(Event.pubkey == pubkey)\
+        .filter(Event.kind == 0)\
+        .order_by(desc(Event.event_created_at)).limit(1)
+    event = query.one_or_none()
+    if event:
+      content = json.loads(event.content)
+
+    return content
 
 
 def updateEventStatus(_id, status: EventStatus):
