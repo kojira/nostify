@@ -49,7 +49,8 @@ services:
       - "./subscriber:/var/subscriber/"
       - "./common/:/var/subscriber/common"
     tty: true
-    command: bash -c "python subscribe.py & python api.py"
+    working_dir: /var/subscriber/src
+    command: bash -c "cargo run"
     ports:
       - "5001:5000"
     depends_on:

@@ -1,21 +1,21 @@
-FROM python:3.10-slim
+FROM rust:1.68-buster
 
-RUN mkdir /var/subscriber
+RUN apt-get update && \
+    apt-get -y install git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rustup component add rls rust-analysis rust-src rustfmt clippy && \
+    cargo install cargo-edit cargo-watch
+
 WORKDIR /var/subscriber
-ADD . /var/subscriber
+COPY subscriber/Cargo.toml ./
 
-RUN apt-get update \
-    && apt-get install -y locales locales-all
+# Build the dependencies first to cache them
+RUN mkdir src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo build --release && \
+    rm -f target/release/deps/subscriber*
 
-ENV LANG="ja_JP.UTF-8" \
-    LANGUAGE="ja_JP:ja" \
-    LC_ALL="ja_JP.UTF-8"
+COPY . .
 
-RUN apt-get install -y autoconf automake build-essential git libtool libgmp-dev
-
-RUN apt-get install -y pkg-config \
-    && apt-get install -y libsecp256k1-dev
-
-RUN pip install --upgrade pip
-COPY ./subscriber/requirements.txt .
-RUN pip install -r requirements.txt
+RUN cargo build --release
