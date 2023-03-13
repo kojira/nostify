@@ -75,10 +75,8 @@ pub fn insert_event(pool: &r2d2::Pool<MySqlConnectionManager>, event: &Event) ->
     ).unwrap();
 
     if conn.affected_rows() > 0 {
-        println!("Event inserted");
         true
     } else {
-        println!("Event already exists");
         false
     }
 }
