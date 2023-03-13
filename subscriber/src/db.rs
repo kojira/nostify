@@ -48,7 +48,7 @@ pub(crate) fn connect() -> Result<r2d2::Pool<MySqlConnectionManager>, MysqlError
     Ok(pool)
 }
 
-pub fn insert_event(pool: &r2d2::Pool<MySqlConnectionManager>, event: &Event) -> () {
+pub fn insert_event(pool: &r2d2::Pool<MySqlConnectionManager>, event: &Event) -> bool {
     let pool = pool.clone();
     let mut conn = pool.get().unwrap();
     let event_id = event.id.to_hex();
@@ -73,6 +73,14 @@ pub fn insert_event(pool: &r2d2::Pool<MySqlConnectionManager>, event: &Event) ->
          VALUES (:status, :hex_event_id, :pubkey, :kind, :content, :tags, :signature, FROM_UNIXTIME(:event_created_at), FROM_UNIXTIME(:received_at))",
          param,
     ).unwrap();
+
+    if conn.affected_rows() > 0 {
+        println!("Event inserted");
+        true
+    } else {
+        println!("Event already exists");
+        false
+    }
 }
 
 struct NgWord {

@@ -11,8 +11,6 @@ struct Config {
 }
 
 fn main() -> Result<()> {
-    // let my_keys =
-    //     Keys::from_sk_str("e706bd0c6ed2bdcc5c9a9696a794e2b0662dff551a8b933fe6232e6c4c9df655")?;
     let my_keys: Keys = Keys::generate();
 
     // Show bech32 public key
@@ -50,8 +48,8 @@ fn main() -> Result<()> {
                 let result = db::is_matching_ng_word(&pool, &event.content).unwrap();
                 if !result {
                     // println!("New Event: {}", event.as_json());
-                    db::insert_event(&pool, &event);
-                    if event.kind == Kind::TextNote {
+                    let inserted = db::insert_event(&pool, &event);
+                    if event.kind == Kind::TextNote && inserted {
                         let filters = db::get_filters(&pool).unwrap();
                         for filter in filters.iter() {
                             let pubkeys = match &filter.pubkeys {
