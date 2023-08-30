@@ -34,7 +34,14 @@ fn main() -> Result<()> {
     println!("client.connect");
 
     let subscription = Filter::new()
-        .kinds([nostr_sdk::Kind::Metadata, nostr_sdk::Kind::TextNote].to_vec())
+        .kinds(
+            [
+                nostr_sdk::Kind::Metadata,
+                nostr_sdk::Kind::TextNote,
+                nostr_sdk::Kind::ChannelMessage,
+            ]
+            .to_vec(),
+        )
         .since(Timestamp::now());
 
     client.subscribe(vec![subscription]);
