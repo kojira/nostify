@@ -33,6 +33,9 @@ fn main() -> Result<()> {
     client.connect();
     println!("client.connect");
 
+    let now = Timestamp::now();
+    let past = Timestamp::from(now.as_u64() - 900);
+
     let subscription = Filter::new()
         .kinds(
             [
@@ -42,7 +45,7 @@ fn main() -> Result<()> {
             ]
             .to_vec(),
         )
-        .since(Timestamp::now());
+        .since(past);
 
     client.subscribe(vec![subscription]);
     println!("subscribe");
