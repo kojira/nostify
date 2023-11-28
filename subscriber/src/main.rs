@@ -41,6 +41,17 @@ fn main() -> Result<()> {
             [
                 nostr_sdk::Kind::Metadata,
                 nostr_sdk::Kind::TextNote,
+                nostr_sdk::Kind::ContactList,
+                nostr_sdk::Kind::EventDeletion,
+                nostr_sdk::Kind::Reaction,
+                nostr_sdk::Kind::Repost,
+                nostr_sdk::Kind::EncryptedDirectMessage,
+                nostr_sdk::Kind::Zap,
+                nostr_sdk::Kind::ZapRequest,
+                nostr_sdk::Kind::ChannelCreation,
+                nostr_sdk::Kind::ChannelMetadata,
+                nostr_sdk::Kind::ChannelMuteUser,
+                nostr_sdk::Kind::ChannelHideMessage,
                 nostr_sdk::Kind::ChannelMessage,
             ]
             .to_vec(),
